@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +7,7 @@ import { Calendar, FileText, Users, School, ArrowRight, Clock, MapPin } from 'lu
 import { sampleOfficers, sampleAnnouncements, sampleEvents } from '@/data/sampleData';
 
 export default function PublicHomePage() {
+  const navigate = useNavigate();
   const publicAnnouncements = sampleAnnouncements.filter(a => a.isPublic);
   const publicEvents = sampleEvents.filter(e => e.isPublic);
 
@@ -26,9 +27,12 @@ export default function PublicHomePage() {
               <a href="#events" className="text-foreground hover:text-primary transition-colors">Events</a>
               <a href="#announcements" className="text-foreground hover:text-primary transition-colors">Announcements</a>
             </div>
-            <Link to="/login">
-              <Button>Officer Login</Button>
-            </Link>
+            <button 
+              onClick={() => navigate('/login')}
+              className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+            >
+              Officer Login
+            </button>
           </div>
         </div>
       </nav>
@@ -44,14 +48,20 @@ export default function PublicHomePage() {
             for our school community. Working together for a better tomorrow.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" className="gap-2">
+            <button 
+              onClick={() => navigate('/officers')}
+              className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-8 gap-2"
+            >
               <Users size={20} />
               Meet Our Officers
-            </Button>
-            <Button variant="outline" size="lg" className="gap-2">
+            </button>
+            <button 
+              onClick={() => document.getElementById('events')?.scrollIntoView({ behavior: 'smooth' })}
+              className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-11 px-8 gap-2"
+            >
               <Calendar size={20} />
               Upcoming Events
-            </Button>
+            </button>
           </div>
         </div>
       </section>
