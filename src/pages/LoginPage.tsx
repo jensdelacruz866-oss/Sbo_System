@@ -5,30 +5,41 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, School } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const { login } = useAuth();
+  const { signIn, signUp, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, navigate]);
+
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
     try {
-      const success = await login(email, password);
-      if (success) {
+      const { error } = await signIn(email, password);
+      if (error) {
+        setError(error.message);
+      } else {
         toast({
           title: "Login Successful",
           description: "Welcome to the SBO Dashboard",
         });
-      } else {
-        setError('Invalid email or password');
       }
     } catch (err) {
       setError('An error occurred during login');
@@ -37,15 +48,26 @@ export default function LoginPage() {
     }
   };
 
-  const sampleCredentials = [
-    { role: 'President', email: 'president@sbo.edu', password: 'president123' },
-    { role: 'Auditor', email: 'auditor@sbo.edu', password: 'auditor123' },
-    { role: 'Secretary', email: 'secretary@sbo.edu', password: 'secretary123' }
-  ];
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
 
-  const fillCredentials = (email: string, password: string) => {
-    setEmail(email);
-    setPassword(password);
+    try {
+      const { error } = await signUp(email, password, fullName);
+      if (error) {
+        setError(error.message);
+      } else {
+        toast({
+          title: "Account Created",
+          description: "Please check your email to verify your account",
+        });
+      }
+    } catch (err) {
+      setError('An error occurred during signup');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -62,83 +84,119 @@ export default function LoginPage() {
           <p className="text-muted-foreground mt-2">School Body Organization System</p>
         </div>
 
-        {/* Login Form */}
+        {/* Auth Tabs */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-center">Officer Login</CardTitle>
+            <CardTitle className="text-center">Authentication</CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="officer@sbo.edu"
-                  required
-                />
-              </div>
+            <Tabs defaultValue="signin" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="signin">Sign In</TabsTrigger>
+                <TabsTrigger value="signup">Sign Up</TabsTrigger>
+              </TabsList>
               
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  required
-                />
-              </div>
+              <TabsContent value="signin">
+                <form onSubmit={handleSignIn} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="signin-email">Email</Label>
+                    <Input
+                      id="signin-email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="officer@sbo.edu"
+                      required
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="signin-password">Password</Label>
+                    <Input
+                      id="signin-password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter your password"
+                      required
+                    />
+                  </div>
 
-              {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
+                  {error && (
+                    <Alert variant="destructive">
+                      <AlertDescription>{error}</AlertDescription>
+                    </Alert>
+                  )}
 
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Login
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Sign In
+                  </Button>
+                </form>
+              </TabsContent>
+              
+              <TabsContent value="signup">
+                <form onSubmit={handleSignUp} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-fullname">Full Name</Label>
+                    <Input
+                      id="signup-fullname"
+                      type="text"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      placeholder="Your full name"
+                      required
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-email">Email</Label>
+                    <Input
+                      id="signup-email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="officer@sbo.edu"
+                      required
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-password">Password</Label>
+                    <Input
+                      id="signup-password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Create a password"
+                      required
+                    />
+                  </div>
 
-        {/* Sample Credentials */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm">Sample Credentials (For Testing)</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {sampleCredentials.map((cred, index) => (
-              <div key={index} className="flex items-center justify-between p-2 bg-muted rounded-lg">
-                <div className="text-sm">
-                  <div className="font-medium">{cred.role}</div>
-                  <div className="text-muted-foreground">{cred.email}</div>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => fillCredentials(cred.email, cred.password)}
-                >
-                  Use
-                </Button>
-              </div>
-            ))}
+                  {error && (
+                    <Alert variant="destructive">
+                      <AlertDescription>{error}</AlertDescription>
+                    </Alert>
+                  )}
+
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Sign Up
+                  </Button>
+                </form>
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
 
         {/* Public Access */}
         <div className="text-center">
-          <a 
-            href="/" 
+          <button 
+            onClick={() => navigate('/')}
             className="text-sm text-muted-foreground hover:text-primary transition-colors"
           >
             ← Back to Public Site
-          </a>
+          </button>
         </div>
       </div>
     </div>

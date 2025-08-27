@@ -28,13 +28,13 @@ const navigationItems = [
 ];
 
 export default function Sidebar() {
-  const { user, logout } = useAuth();
+  const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const handleLogout = () => {
-    logout();
+    signOut();
     navigate('/');
   };
 
@@ -75,18 +75,18 @@ export default function Sidebar() {
           isCollapsed && "justify-center"
         )}>
           <Avatar className="h-10 w-10">
-            <AvatarImage src={user?.avatar} />
+            <AvatarImage src="/api/placeholder/150/150" />
             <AvatarFallback className="bg-sidebar-accent text-sidebar-foreground">
-              {user?.name?.split(' ').map(n => n[0]).join('')}
+              {profile?.full_name?.split(' ').map(n => n[0]).join('') || user?.email?.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           {!isCollapsed && (
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-sidebar-foreground truncate">
-                {user?.name}
+                {profile?.full_name || user?.email}
               </p>
               <p className="text-xs text-sidebar-foreground/70 truncate">
-                {user?.role}
+                {profile?.role || 'Officer'}
               </p>
             </div>
           )}

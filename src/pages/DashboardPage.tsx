@@ -20,7 +20,7 @@ import { sampleBudget, sampleExpenses, sampleAnnouncements, sampleEvents } from 
 const COLORS = ['hsl(220 70% 25%)', 'hsl(142 76% 36%)', 'hsl(38 92% 50%)', 'hsl(220 60% 90%)', 'hsl(0 84% 55%)', 'hsl(220 70% 40%)'];
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [budget] = useState(sampleBudget);
   const [recentExpenses] = useState(sampleExpenses.slice(0, 5));
   const [upcomingEvents] = useState(sampleEvents.slice(0, 3));
@@ -46,7 +46,7 @@ export default function DashboardPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold text-foreground">
-            Welcome back, {user?.name}
+            Welcome back, {profile?.full_name || user?.email}!
           </h1>
           <p className="text-muted-foreground mt-1">
             Here's your SBO dashboard overview for today
