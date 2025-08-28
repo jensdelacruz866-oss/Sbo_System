@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import PublicHomePage from "./pages/PublicHomePage";
 import LoginPage from "./pages/LoginPage";
+import AuthSetup from "./pages/AuthSetup";
 import DashboardLayout from "./layouts/DashboardLayout";
 import DashboardPage from "./pages/DashboardPage";
 import OfficersPage from "./pages/OfficersPage";
@@ -23,6 +24,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<PublicHomePage />} />
+            <Route path="/auth-setup" element={<AuthSetup />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/officers" element={<OfficersPage />} />
             <Route path="/dashboard" element={
