@@ -12,31 +12,31 @@ export default function PublicHomePage() {
   const publicEvents = sampleEvents.filter(e => e.isPublic);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen gradient-bg">
       {/* Navigation */}
-      <nav className="bg-card border-b border-border">
+      <nav className="glass-card sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-2">
-              <School className="h-8 w-8 text-primary" />
-              <span className="text-xl font-bold">SBO</span>
+            <div className="flex items-center gap-2 fade-in">
+              <School className="h-8 w-8 text-primary pulse-slow" />
+              <span className="text-xl font-bold text-shimmer">SBO System</span>
             </div>
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#home" className="text-foreground hover:text-primary transition-colors">Home</a>
-              <a href="#officers" className="text-foreground hover:text-primary transition-colors">Officers</a>
-              <a href="#events" className="text-foreground hover:text-primary transition-colors">Events</a>
-              <a href="#announcements" className="text-foreground hover:text-primary transition-colors">Announcements</a>
+              <a href="#home" className="text-foreground hover:text-primary transition-all duration-300 hover-glow">Home</a>
+              <a href="#officers" className="text-foreground hover:text-primary transition-all duration-300 hover-glow">Officers</a>
+              <a href="#events" className="text-foreground hover:text-primary transition-all duration-300 hover-glow">Events</a>
+              <a href="#announcements" className="text-foreground hover:text-primary transition-all duration-300 hover-glow">Announcements</a>
             </div>
             <div className="flex gap-2">
               <button 
                 onClick={() => navigate('/auth-setup')}
-                className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+                className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-all duration-300 border border-input bg-background/80 hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 hover-lift"
               >
                 Setup
               </button>
               <button 
                 onClick={() => navigate('/login')}
-                className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+                className="btn-gradient inline-flex items-center justify-center rounded-md text-sm font-medium text-primary-foreground h-10 px-4 py-2"
               >
                 Officer Login
               </button>
@@ -46,26 +46,27 @@ export default function PublicHomePage() {
       </nav>
 
       {/* Hero Section */}
-      <section id="home" className="py-20 bg-gradient-to-br from-primary/5 to-accent/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold text-foreground mb-6">
-            School Body Organization
+      <section id="home" className="py-20 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10"></div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          <h1 className="text-5xl md:text-7xl font-bold mb-6 text-shimmer slide-in-bottom">
+            Student Body Organization
           </h1>
-          <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-            Representing students, managing resources, and creating memorable experiences 
-            for our school community. Working together for a better tomorrow.
+          <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto slide-in-bottom" style={{animationDelay: '0.2s'}}>
+            Empowering student leadership through modern technology. Manage officers, 
+            communicate effectively, and build stronger communities.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center slide-in-bottom" style={{animationDelay: '0.4s'}}>
             <button 
               onClick={() => navigate('/officers')}
-              className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-8 gap-2"
+              className="btn-gradient inline-flex items-center justify-center rounded-lg text-sm font-medium text-primary-foreground h-12 px-8 gap-2"
             >
               <Users size={20} />
               Meet Our Officers
             </button>
             <button 
               onClick={() => document.getElementById('events')?.scrollIntoView({ behavior: 'smooth' })}
-              className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-11 px-8 gap-2"
+              className="pro-card inline-flex items-center justify-center rounded-lg text-sm font-medium border-0 h-12 px-8 gap-2"
             >
               <Calendar size={20} />
               Upcoming Events

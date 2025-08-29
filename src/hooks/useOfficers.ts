@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 export interface Officer {
   id: string;
   name: string;
-  role: 'President' | 'Auditor' | 'Secretary';
+  role: string; // Changed from enum to string to match database
   email: string;
   bio: string | null;
   avatar_url: string | null;
