@@ -53,16 +53,16 @@ export interface Officer {
 }
 
 export const sampleBudget: Budget = {
-  totalBudget: 50000,
-  totalExpenses: 28750,
-  remainingBalance: 21250,
+  totalBudget: 0,
+  totalExpenses: 0,
+  remainingBalance: 0,
   categories: [
-    { name: 'Events', allocated: 15000, spent: 8500 },
-    { name: 'Supplies', allocated: 8000, spent: 4200 },
-    { name: 'Marketing', allocated: 7000, spent: 3800 },
-    { name: 'Technology', allocated: 10000, spent: 6200 },
-    { name: 'Travel', allocated: 5000, spent: 2050 },
-    { name: 'Miscellaneous', allocated: 5000, spent: 4000 }
+    { name: 'Events', allocated: 0, spent: 0 },
+    { name: 'Supplies', allocated: 0, spent: 0 },
+    { name: 'Marketing', allocated: 0, spent: 0 },
+    { name: 'Technology', allocated: 0, spent: 0 },
+    { name: 'Travel', allocated: 0, spent: 0 },
+    { name: 'Miscellaneous', allocated: 0, spent: 0 }
   ]
 };
 

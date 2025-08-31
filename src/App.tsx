@@ -8,6 +8,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import PublicHomePage from "./pages/PublicHomePage";
 import LoginPage from "./pages/LoginPage";
 import AuthSetup from "./pages/AuthSetup";
+import RoleSelection from "./pages/RoleSelection";
 import DashboardLayout from "./layouts/DashboardLayout";
 import DashboardPage from "./pages/DashboardPage";
 import OfficersPage from "./pages/OfficersPage";
@@ -27,6 +28,11 @@ const App = () => (
             <Route path="/auth-setup" element={<AuthSetup />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/officers" element={<OfficersPage />} />
+            <Route path="/role-selection" element={
+              <ProtectedRoute requireRole={false}>
+                <RoleSelection />
+              </ProtectedRoute>
+            } />
             <Route path="/dashboard" element={
               <ProtectedRoute>
                 <DashboardLayout>

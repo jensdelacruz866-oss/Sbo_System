@@ -1,16 +1,34 @@
-import { ReactNode } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import LoginPage from '@/pages/LoginPage';
+import { Navigate, useLocation } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
 
 interface ProtectedRouteProps {
-  children: ReactNode;
+  children: React.ReactNode;
+  requireRole?: boolean;
 }
 
-export default function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { isAuthenticated } = useAuth();
+export default function ProtectedRoute({ children, requireRole = true }: ProtectedRouteProps) {
+  const { isAuthenticated, isLoading, profile } = useAuth();
+  const location = useLocation();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
-    return <LoginPage />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  // If user is authenticated but doesn't have a role assigned, redirect to role selection
+  if (requireRole && !profile?.role) {
+    return <Navigate to="/role-selection" replace />;
   }
 
   return <>{children}</>;

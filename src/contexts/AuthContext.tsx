@@ -22,6 +22,7 @@ interface AuthContextType {
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   hasRole: (role: UserRole) => boolean;
+  assignRole: (role: UserRole) => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -118,6 +119,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return profile?.role === role;
   };
 
+  const assignRole = async (role: UserRole) => {
+    if (!user) return { error: { message: 'No user found' } };
+
+    try {
+      const { error } = await supabase
+        .from('user_roles')
+        .insert({
+          user_id: user.id,
+          role: role
+        });
+
+      if (!error) {
+        // Refresh the profile to get the updated role
+        setTimeout(() => {
+          fetchUserProfile(user.id);
+        }, 0);
+      }
+
+      return { error };
+    } catch (error) {
+      return { error };
+    }
+  };
+
   const value = {
     user,
     session,
@@ -127,7 +152,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signIn,
     signUp,
     signOut,
-    hasRole
+    hasRole,
+    assignRole
   };
 
   return (
