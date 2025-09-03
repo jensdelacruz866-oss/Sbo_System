@@ -10,7 +10,7 @@ import {
   Eye,
   Edit,
   Users,
-  DollarSign
+  PhilippinePeso,
 } from 'lucide-react';
 import { useEvents } from '@/hooks/useEvents';
 import { useAnnouncements } from '@/hooks/useAnnouncements';
@@ -100,7 +100,7 @@ export default function SecretaryDashboard() {
         <Card className="hover-scale">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Added Expenses</CardTitle>
-            <DollarSign className="h-4 w-4 text-orange-600" />
+            <PhilippinePeso className="h-4 w-4 text-orange-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-orange-600">{expenses.length}</div>
@@ -286,7 +286,7 @@ export default function SecretaryDashboard() {
               <span>Upload Document</span>
             </Button>
             <Button className="h-20 flex-col space-y-2" variant="outline">
-              <DollarSign className="w-6 h-6" />
+              <PhilippinePeso className="w-6 h-6" />
               <span>Record Expense</span>
             </Button>
           </div>

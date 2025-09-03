@@ -30,6 +30,7 @@ export interface Announcement {
   date: string;
   isPublic: boolean;
   author: string;
+  category: string; // Added missing property
 }
 
 export interface Event {
@@ -40,6 +41,8 @@ export interface Event {
   time: string;
   location: string;
   isPublic: boolean;
+  category: string; // Added missing property
+  attendees: number; // Added missing property
 }
 
 export interface Officer {
@@ -50,6 +53,7 @@ export interface Officer {
   bio: string;
   avatar: string;
   termStart: string;
+  department: string; // Added missing property
 }
 
 export const sampleBudget: Budget = {
@@ -126,7 +130,8 @@ export const sampleAnnouncements: Announcement[] = [
     content: 'The SBO welcomes all students back for the new semester. We have exciting events planned!',
     date: '2024-01-15',
     isPublic: true,
-    author: 'Alex Johnson'
+    author: 'Alex Johnson',
+    category: 'General' // Added category
   },
   {
     id: '2',
@@ -134,7 +139,8 @@ export const sampleAnnouncements: Announcement[] = [
     content: 'Monthly budget review scheduled for next Friday at 3 PM in the SBO office.',
     date: '2024-01-20',
     isPublic: false,
-    author: 'Sarah Chen'
+    author: 'Sarah Chen',
+    category: 'Meeting' // Added category
   },
   {
     id: '3',
@@ -142,7 +148,8 @@ export const sampleAnnouncements: Announcement[] = [
     content: 'Planning meeting for the annual spring festival. All committee members should attend.',
     date: '2024-02-01',
     isPublic: true,
-    author: 'Marcus Williams'
+    author: 'Marcus Williams',
+    category: 'Event' // Added category
   }
 ];
 
@@ -154,7 +161,9 @@ export const sampleEvents: Event[] = [
     date: '2024-02-15',
     time: '10:00 AM',
     location: 'Main Auditorium',
-    isPublic: true
+    isPublic: true,
+    category: 'Academic', // Added category
+    attendees: 250 // Added attendees
   },
   {
     id: '2',
@@ -163,7 +172,9 @@ export const sampleEvents: Event[] = [
     date: '2024-02-20',
     time: '2:00 PM', 
     location: 'SBO Office',
-    isPublic: false
+    isPublic: false,
+    category: 'Administrative', // Added category
+    attendees: 15 // Added attendees
   },
   {
     id: '3',
@@ -172,7 +183,9 @@ export const sampleEvents: Event[] = [
     date: '2024-03-15',
     time: '12:00 PM',
     location: 'Campus Quad',
-    isPublic: true
+    isPublic: true,
+    category: 'Social', // Added category
+    attendees: 500 // Added attendees
   }
 ];
 
@@ -184,7 +197,8 @@ export const sampleOfficers: Officer[] = [
     email: 'president@sbo.edu',
     bio: 'Senior majoring in Business Administration. Passionate about student representation and campus improvement.',
     avatar: '/api/placeholder/200/200',
-    termStart: '2023-09-01'
+    termStart: '2023-09-01',
+    department: 'Executive' // Added department
   },
   {
     id: '2',
@@ -193,7 +207,8 @@ export const sampleOfficers: Officer[] = [
     email: 'auditor@sbo.edu',
     bio: 'Junior studying Accounting and Finance. Dedicated to financial transparency and responsible budget management.',
     avatar: '/api/placeholder/200/200',
-    termStart: '2023-09-01'
+    termStart: '2023-09-01',
+    department: 'Finance' // Added department
   },
   {
     id: '3',
@@ -202,6 +217,7 @@ export const sampleOfficers: Officer[] = [
     email: 'secretary@sbo.edu',
     bio: 'Sophomore in Communications. Focused on keeping students informed and engaged with SBO activities.',
     avatar: '/api/placeholder/200/200',
-    termStart: '2023-09-01'
+    termStart: '2023-09-01',
+    department: 'Administration' // Added department
   }
 ];

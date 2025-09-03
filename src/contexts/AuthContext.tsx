@@ -23,6 +23,8 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   hasRole: (role: UserRole) => boolean;
   assignRole: (role: UserRole) => Promise<{ error: any }>;
+  fetchUserRole: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -44,6 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Defer profile fetch to avoid deadlock
           setTimeout(() => {
             fetchUserProfile(session.user.id);
+            fetchUserRole(); // Also fetch user role
           }, 0);
         } else {
           setProfile(null);
@@ -52,7 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsLoading(false);
       }
     );
-
+    
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -60,10 +63,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       if (session?.user) {
         fetchUserProfile(session.user.id);
+        fetchUserRole(); // Also fetch user role
       }
       setIsLoading(false);
     });
-
+    
     return () => subscription.unsubscribe();
   }, []);
 
@@ -74,16 +78,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .select('*')
         .eq('user_id', userId)
         .maybeSingle();
-
+      
       if (error) {
         console.error('Error fetching profile:', error);
         return;
       }
-
       setProfile(data);
     } catch (error) {
       console.error('Error fetching profile:', error);
     }
+  };
+
+  // NEW: Function to fetch user role from user_roles table
+  const fetchUserRole = async () => {
+    if (!user) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      
+      if (error) {
+        console.error('Error fetching user role:', error);
+        return;
+      }
+      
+      // Update profile with role
+      if (data && profile) {
+        setProfile({
+          ...profile,
+          role: data.role
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching user role:', error);
+    }
+  };
+
+  // NEW: Function to refresh profile and role
+  const refreshProfile = async () => {
+    if (!user) return;
+    
+    await fetchUserProfile(user.id);
+    await fetchUserRole();
   };
 
   const signIn = async (email: string, password: string) => {
@@ -119,25 +158,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return profile?.role === role;
   };
 
+  // NEW: Function to assign a role to the user
   const assignRole = async (role: UserRole) => {
     if (!user) return { error: { message: 'No user found' } };
-
+    
     try {
+      // Use upsert to handle both insert and update
       const { error } = await supabase
         .from('user_roles')
-        .insert({
+        .upsert({
           user_id: user.id,
           role: role
+        }, {
+          onConflict: 'user_id' // Update if user_id already exists
         });
-
-      if (!error) {
-        // Refresh the profile to get the updated role
-        setTimeout(() => {
-          fetchUserProfile(user.id);
-        }, 0);
+      
+      if (error) {
+        return { error };
       }
-
-      return { error };
+      
+      // Refresh profile to get the updated role
+      await refreshProfile();
+      
+      return { error: null };
     } catch (error) {
       return { error };
     }
@@ -153,7 +196,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signUp,
     signOut,
     hasRole,
-    assignRole
+    assignRole,
+    fetchUserRole,
+    refreshProfile
   };
 
   return (
