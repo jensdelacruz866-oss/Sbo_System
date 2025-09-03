@@ -62,7 +62,7 @@ export function useEvents() {
 
       if (error) {
         console.error('Error adding event:', error);
-        toast.error('Failed to add event');
+        toast.error('Failed to add event: ' + error.message);
         return;
       }
 
@@ -70,14 +70,6 @@ export function useEvents() {
         new Date(a.event_date).getTime() - new Date(b.event_date).getTime()
       ));
       toast.success('Event added successfully');
-      
-      // Log audit event
-      await supabase.rpc('log_audit_event', {
-        p_action: 'INSERT',
-        p_table_name: 'events',
-        p_record_id: data.id,
-        p_new_values: data as any
-      });
     } catch (error) {
       console.error('Error adding event:', error);
       toast.error('Failed to add event');
@@ -91,8 +83,6 @@ export function useEvents() {
     }
 
     try {
-      const oldEvent = events.find(e => e.id === id);
-      
       const { data, error } = await supabase
         .from('events')
         .update(updates)
@@ -108,15 +98,6 @@ export function useEvents() {
 
       setEvents(prev => prev.map(item => item.id === id ? data : item));
       toast.success('Event updated successfully');
-      
-      // Log audit event
-      await supabase.rpc('log_audit_event', {
-        p_action: 'UPDATE',
-        p_table_name: 'events',
-        p_record_id: id,
-        p_old_values: oldEvent as any,
-        p_new_values: data as any
-      });
     } catch (error) {
       console.error('Error updating event:', error);
       toast.error('Failed to update event');
@@ -130,8 +111,6 @@ export function useEvents() {
     }
 
     try {
-      const oldEvent = events.find(e => e.id === id);
-      
       const { error } = await supabase
         .from('events')
         .delete()
@@ -145,14 +124,6 @@ export function useEvents() {
 
       setEvents(prev => prev.filter(item => item.id !== id));
       toast.success('Event deleted successfully');
-      
-      // Log audit event
-      await supabase.rpc('log_audit_event', {
-        p_action: 'DELETE',
-        p_table_name: 'events',
-        p_record_id: id,
-        p_old_values: oldEvent as any
-      });
     } catch (error) {
       console.error('Error deleting event:', error);
       toast.error('Failed to delete event');

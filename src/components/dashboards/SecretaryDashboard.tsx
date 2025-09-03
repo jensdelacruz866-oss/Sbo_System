@@ -28,6 +28,12 @@ export default function SecretaryDashboard() {
   const { expenses, loading: expensesLoading, addExpense } = useExpenses();
   const { documents, loading: documentsLoading } = useDocuments();
 
+  // Debug logging
+  console.log('Secretary Dashboard - Events:', events.length);
+  console.log('Secretary Dashboard - Announcements:', announcements.length);
+  console.log('Secretary Dashboard - Expenses:', expenses.length);
+  console.log('Secretary Dashboard - Documents:', documents.length);
+
   const [showExpenseDialog, setShowExpenseDialog] = useState(false);
   const [expenseForm, setExpenseForm] = useState({
     title: '',

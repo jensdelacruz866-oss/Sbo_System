@@ -59,20 +59,12 @@ export function useAnnouncements() {
 
       if (error) {
         console.error('Error adding announcement:', error);
-        toast.error('Failed to add announcement');
+        toast.error('Failed to add announcement: ' + error.message);
         return;
       }
 
       setAnnouncements(prev => [data, ...prev]);
       toast.success('Announcement added successfully');
-      
-      // Log audit event
-      await supabase.rpc('log_audit_event', {
-        p_action: 'INSERT',
-        p_table_name: 'announcements',
-        p_record_id: data.id,
-        p_new_values: data as any
-      });
     } catch (error) {
       console.error('Error adding announcement:', error);
       toast.error('Failed to add announcement');
@@ -86,8 +78,6 @@ export function useAnnouncements() {
     }
 
     try {
-      const oldAnnouncement = announcements.find(a => a.id === id);
-      
       const { data, error } = await supabase
         .from('announcements')
         .update(updates)
@@ -103,15 +93,6 @@ export function useAnnouncements() {
 
       setAnnouncements(prev => prev.map(item => item.id === id ? data : item));
       toast.success('Announcement updated successfully');
-      
-      // Log audit event
-      await supabase.rpc('log_audit_event', {
-        p_action: 'UPDATE',
-        p_table_name: 'announcements',
-        p_record_id: id,
-        p_old_values: oldAnnouncement as any,
-        p_new_values: data as any
-      });
     } catch (error) {
       console.error('Error updating announcement:', error);
       toast.error('Failed to update announcement');
@@ -125,8 +106,6 @@ export function useAnnouncements() {
     }
 
     try {
-      const oldAnnouncement = announcements.find(a => a.id === id);
-      
       const { error } = await supabase
         .from('announcements')
         .delete()
@@ -140,14 +119,6 @@ export function useAnnouncements() {
 
       setAnnouncements(prev => prev.filter(item => item.id !== id));
       toast.success('Announcement deleted successfully');
-      
-      // Log audit event
-      await supabase.rpc('log_audit_event', {
-        p_action: 'DELETE',
-        p_table_name: 'announcements',
-        p_record_id: id,
-        p_old_values: oldAnnouncement as any
-      });
     } catch (error) {
       console.error('Error deleting announcement:', error);
       toast.error('Failed to delete announcement');

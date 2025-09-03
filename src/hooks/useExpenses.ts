@@ -52,6 +52,9 @@ export function useExpenses() {
     }
 
     try {
+      console.log('Adding expense:', expense);
+      console.log('User ID:', user?.id);
+      
       const { data, error } = await supabase
         .from('expenses')
         .insert([{
@@ -64,20 +67,12 @@ export function useExpenses() {
 
       if (error) {
         console.error('Error adding expense:', error);
-        toast.error('Failed to add expense');
+        toast.error('Failed to add expense: ' + error.message);
         return;
       }
 
       setExpenses(prev => [data, ...prev]);
       toast.success('Expense added successfully');
-      
-      // Log audit event
-      await supabase.rpc('log_audit_event', {
-        p_action: 'INSERT',
-        p_table_name: 'expenses',
-        p_record_id: data.id,
-        p_new_values: data as any
-      });
     } catch (error) {
       console.error('Error adding expense:', error);
       toast.error('Failed to add expense');
