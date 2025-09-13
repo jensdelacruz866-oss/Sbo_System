@@ -7,9 +7,10 @@ import { Label } from '@/components/ui/label';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, School, Eye, EyeOff, Shield, Mail, User, Lock } from 'lucide-react';
+import { Loader2, School, Eye, EyeOff, Shield, Mail, User, Lock, ArrowLeft, Chrome, Facebook } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { Progress } from '@/components/ui/progress';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -19,19 +20,23 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const { signIn, signUp, isAuthenticated } = useAuth();
+  const [rememberMe, setRememberMe] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState(0);
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const { signIn, signUp, isAuthenticated, signInWithOAuth } = useAuth();
   const navigate = useNavigate();
   
   // Cursor animation state
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [cursorVariant, setCursorVariant] = useState("default");
-
+  
   useEffect(() => {
     if (isAuthenticated) {
       navigate('/dashboard');
     }
   }, [isAuthenticated, navigate]);
-
+  
   // Check if device is mobile
   useEffect(() => {
     const checkIsMobile = () => {
@@ -45,7 +50,7 @@ export default function LoginPage() {
       window.removeEventListener('resize', checkIsMobile);
     };
   }, []);
-
+  
   // Mouse move event for cursor animation (only for non-mobile)
   useEffect(() => {
     if (isMobile) return;
@@ -56,14 +61,45 @@ export default function LoginPage() {
         y: e.clientY
       });
     };
-
     window.addEventListener("mousemove", mouseMove);
-
     return () => {
       window.removeEventListener("mousemove", mouseMove);
     };
   }, [isMobile]);
-
+  
+  // Password strength calculation
+  useEffect(() => {
+    if (password) {
+      let strength = 0;
+      if (password.length >= 8) strength += 25;
+      if (password.length >= 12) strength += 25;
+      if (/[A-Z]/.test(password)) strength += 25;
+      if (/[0-9]/.test(password)) strength += 12.5;
+      if (/[^A-Za-z0-9]/.test(password)) strength += 12.5;
+      setPasswordStrength(strength);
+    } else {
+      setPasswordStrength(0);
+    }
+  }, [password]);
+  
+  // Email validation
+  useEffect(() => {
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setEmailError('Please enter a valid email address');
+    } else {
+      setEmailError('');
+    }
+  }, [email]);
+  
+  // Password validation for sign up
+  useEffect(() => {
+    if (password && password.length < 8) {
+      setPasswordError('Password must be at least 8 characters');
+    } else {
+      setPasswordError('');
+    }
+  }, [password]);
+  
   // Cursor variants for different states
   const variants = {
     default: {
@@ -87,17 +123,18 @@ export default function LoginPage() {
       scale: 0.8,
     }
   };
-
+  
   // Handle mouse events for cursor (only for non-mobile)
   const handleMouseEnter = () => !isMobile && setCursorVariant("hover");
   const handleMouseLeave = () => !isMobile && setCursorVariant("default");
   const handleMouseDown = () => !isMobile && setCursorVariant("click");
   const handleMouseUp = () => !isMobile && setCursorVariant("hover");
-
+  
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
+    
     try {
       const { error } = await signIn(email, password);
       if (error) {
@@ -114,11 +151,12 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   };
-
+  
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
+    
     try {
       const { error } = await signUp(email, password, fullName);
       if (error) {
@@ -135,7 +173,35 @@ export default function LoginPage() {
       setIsLoading(false);
     }
   };
-
+  
+  const handleGoogleSignIn = async () => {
+    setIsLoading(true);
+    try {
+      const { error } = await signInWithOAuth('google');
+      if (error) {
+        setError(error.message);
+      }
+    } catch (err) {
+      setError('An error occurred during Google sign in');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const handleFacebookSignIn = async () => {
+    setIsLoading(true);
+    try {
+      const { error } = await signInWithOAuth('facebook');
+      if (error) {
+        setError(error.message);
+      }
+    } catch (err) {
+      setError('An error occurred during Facebook sign in');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { 
@@ -147,12 +213,27 @@ export default function LoginPage() {
       }
     }
   };
-
+  
   const itemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0 }
   };
-
+  
+  const getPasswordStrengthColor = () => {
+    if (passwordStrength <= 25) return 'bg-red-500';
+    if (passwordStrength <= 50) return 'bg-orange-500';
+    if (passwordStrength <= 75) return 'bg-yellow-500';
+    return 'bg-green-500';
+  };
+  
+  const getPasswordStrengthText = () => {
+    if (passwordStrength === 0) return '';
+    if (passwordStrength <= 25) return 'Weak';
+    if (passwordStrength <= 50) return 'Fair';
+    if (passwordStrength <= 75) return 'Good';
+    return 'Strong';
+  };
+  
   return (
     <div 
       className={`min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 relative overflow-hidden ${isMobile ? '' : 'cursor-none'}`}
@@ -185,7 +266,7 @@ export default function LoginPage() {
           />
         ))}
       </div>
-
+      
       {/* Custom Animated Cursor (only for non-mobile) */}
       {!isMobile && (
         <>
@@ -215,7 +296,7 @@ export default function LoginPage() {
           />
         </>
       )}
-
+      
       <motion.div 
         className="w-full max-w-md mx-auto z-10"
         variants={containerVariants}
@@ -256,7 +337,7 @@ export default function LoginPage() {
             School Body Organization System
           </motion.p>
         </motion.div>
-
+        
         {/* Auth Card */}
         <motion.div variants={itemVariants}>
           <Card className="backdrop-blur-sm bg-white/95 border-0 shadow-xl rounded-2xl overflow-hidden">
@@ -306,6 +387,7 @@ export default function LoginPage() {
                           className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-all duration-300 h-11"
                         />
                       </motion.div>
+                      {emailError && <p className="text-red-500 text-xs mt-1">{emailError}</p>}
                     </div>
                     
                     <div className="space-y-2">
@@ -333,6 +415,30 @@ export default function LoginPage() {
                       </motion.div>
                     </div>
                     
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <input
+                          id="remember-me"
+                          type="checkbox"
+                          checked={rememberMe}
+                          onChange={(e) => setRememberMe(e.target.checked)}
+                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        />
+                        <Label htmlFor="remember-me" className="text-sm text-gray-700">
+                          Remember me
+                        </Label>
+                      </div>
+                      <motion.button
+                        type="button"
+                        className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => navigate('/forgot-password')}
+                      >
+                        Forgot password?
+                      </motion.button>
+                    </div>
+                    
                     {error && (
                       <motion.div
                         initial={{ opacity: 0, y: -10 }}
@@ -352,7 +458,7 @@ export default function LoginPage() {
                       <Button 
                         type="submit" 
                         className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-medium py-3 h-11 transition-all duration-300 shadow-md hover:shadow-lg" 
-                        disabled={isLoading}
+                        disabled={isLoading || !!emailError || !!passwordError}
                       >
                         {isLoading ? (
                           <>
@@ -364,6 +470,42 @@ export default function LoginPage() {
                         )}
                       </Button>
                     </motion.div>
+                    
+                    <div className="relative my-6">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-gray-300"></div>
+                      </div>
+                      <div className="relative flex justify-center text-sm">
+                        <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="w-full h-10 flex items-center justify-center gap-2"
+                          onClick={handleGoogleSignIn}
+                          disabled={isLoading}
+                        >
+                          <Chrome className="h-4 w-4" />
+                          <span>Google</span>
+                        </Button>
+                      </motion.div>
+                      <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="w-full h-10 flex items-center justify-center gap-2"
+                          onClick={handleFacebookSignIn}
+                          disabled={isLoading}
+                        >
+                          <Facebook className="h-4 w-4" />
+                          <span>Facebook</span>
+                        </Button>
+                      </motion.div>
+                    </div>
                   </motion.form>
                 </TabsContent>
                 
@@ -409,6 +551,7 @@ export default function LoginPage() {
                           className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-all duration-300 h-11"
                         />
                       </motion.div>
+                      {emailError && <p className="text-red-500 text-xs mt-1">{emailError}</p>}
                     </div>
                     
                     <div className="space-y-2">
@@ -434,6 +577,21 @@ export default function LoginPage() {
                           {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </button>
                       </motion.div>
+                      {password && (
+                        <div className="mt-2">
+                          <div className="flex justify-between text-xs mb-1">
+                            <span className="text-gray-600">Password strength</span>
+                            <span className={`font-medium ${passwordStrength <= 25 ? 'text-red-500' : passwordStrength <= 50 ? 'text-orange-500' : passwordStrength <= 75 ? 'text-yellow-500' : 'text-green-500'}`}>
+                              {getPasswordStrengthText()}
+                            </span>
+                          </div>
+                          <Progress value={passwordStrength} className="h-1.5" />
+                          <div className="mt-1 text-xs text-gray-500">
+                            Use 8+ characters with uppercase, lowercase, numbers & symbols
+                          </div>
+                        </div>
+                      )}
+                      {passwordError && <p className="text-red-500 text-xs mt-1">{passwordError}</p>}
                     </div>
                     
                     {error && (
@@ -455,7 +613,7 @@ export default function LoginPage() {
                       <Button 
                         type="submit" 
                         className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-medium py-3 h-11 transition-all duration-300 shadow-md hover:shadow-lg" 
-                        disabled={isLoading}
+                        disabled={isLoading || !!emailError || !!passwordError || passwordStrength < 50}
                       >
                         {isLoading ? (
                           <>
@@ -467,13 +625,49 @@ export default function LoginPage() {
                         )}
                       </Button>
                     </motion.div>
+                    
+                    <div className="relative my-6">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-gray-300"></div>
+                      </div>
+                      <div className="relative flex justify-center text-sm">
+                        <span className="px-2 bg-white text-gray-500">Or sign up with</span>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="w-full h-10 flex items-center justify-center gap-2"
+                          onClick={handleGoogleSignIn}
+                          disabled={isLoading}
+                        >
+                          <Chrome className="h-4 w-4" />
+                          <span>Google</span>
+                        </Button>
+                      </motion.div>
+                      <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="w-full h-10 flex items-center justify-center gap-2"
+                          onClick={handleFacebookSignIn}
+                          disabled={isLoading}
+                        >
+                          <Facebook className="h-4 w-4" />
+                          <span>Facebook</span>
+                        </Button>
+                      </motion.div>
+                    </div>
                   </motion.form>
                 </TabsContent>
               </Tabs>
             </CardContent>
           </Card>
         </motion.div>
-
+        
         {/* Public Access */}
         <motion.div 
           className="text-center mt-6"
@@ -485,9 +679,7 @@ export default function LoginPage() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
+            <ArrowLeft className="h-4 w-4" />
             Back to Public Site
           </motion.button>
         </motion.div>

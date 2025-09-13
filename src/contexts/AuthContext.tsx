@@ -20,6 +20,7 @@ interface AuthContextType {
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
+  signInWithOAuth: (provider: 'google' | 'facebook') => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   hasRole: (role: UserRole) => boolean;
   assignRole: (role: UserRole) => Promise<{ error: any }>;
@@ -83,7 +84,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.error('Error fetching profile:', error);
         return;
       }
-      setProfile(data);
+      
+      // If profile doesn't exist yet, create it
+      if (!data && user) {
+        const { data: newProfile, error: insertError } = await supabase
+          .from('profiles')
+          .insert({
+            user_id: userId,
+            full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+            student_id: null,
+            role: null
+          })
+          .select()
+          .single();
+        
+        if (insertError) {
+          console.error('Error creating profile:', insertError);
+          return;
+        }
+        
+        setProfile(newProfile);
+      } else {
+        setProfile(data);
+      }
     } catch (error) {
       console.error('Error fetching profile:', error);
     }
@@ -149,6 +172,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error };
   };
 
+  // NEW: Function for OAuth sign in
+  const signInWithOAuth = async (provider: 'google' | 'facebook') => {
+    const redirectUrl = `${window.location.origin}/`;
+    
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: redirectUrl,
+      }
+    });
+    
+    return { error };
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
     setProfile(null);
@@ -194,6 +231,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     isLoading,
     signIn,
     signUp,
+    signInWithOAuth,
     signOut,
     hasRole,
     assignRole,
