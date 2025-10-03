@@ -198,28 +198,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // NEW: Function to assign a role to the user
   const assignRole = async (role: UserRole) => {
     if (!user) return { error: { message: 'No user found' } };
-    
+
     try {
-      // Use upsert to handle both insert and update
-      const { error } = await supabase
+      // Try INSERT first
+      const { error: insertError } = await supabase
         .from('user_roles')
-        .upsert({
-          user_id: user.id,
-          role: role
-        }, {
-          onConflict: 'user_id' // Update if user_id already exists
-        });
-      
-      if (error) {
-        return { error };
+        .insert({ user_id: user.id, role });
+
+      if (insertError) {
+        // If duplicate (already has a row), fallback to UPDATE
+        const duplicate =
+          (insertError as any).code === '23505' ||
+          /duplicate key|unique constraint/i.test((insertError as any).message || '');
+
+        if (!duplicate) {
+          return { error: insertError };
+        }
+
+        const { error: updateError } = await supabase
+          .from('user_roles')
+          .update({ role })
+          .eq('user_id', user.id);
+
+        if (updateError) {
+          return { error: updateError };
+        }
       }
-      
+
       // Refresh profile to get the updated role
       await refreshProfile();
-      
       return { error: null };
     } catch (error) {
-      return { error };
+      return { error } as any;
     }
   };
 
