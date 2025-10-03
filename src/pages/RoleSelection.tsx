@@ -54,7 +54,7 @@ const roles: { value: UserRole; label: string; description: string; icon: React.
 export default function RoleSelection() {
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const { user } = useAuth();
+  const { user, assignRole, refreshProfile } = useAuth();
   const navigate = useNavigate();
 
   const handleRoleAssignment = async () => {
@@ -62,13 +62,8 @@ export default function RoleSelection() {
 
     setIsLoading(true);
     try {
-      // Insert the user role
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .insert({
-          user_id: user.id,
-          role: selectedRole
-        });
+      // Use the assignRole function from AuthContext
+      const { error: roleError } = await assignRole(selectedRole);
 
       if (roleError) {
         console.error('Error assigning role:', roleError);
@@ -79,6 +74,12 @@ export default function RoleSelection() {
         });
         return;
       }
+
+      // Wait a bit for the profile to be refreshed
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Refresh profile to ensure role is loaded
+      await refreshProfile();
 
       toast({
         title: "Role Assigned",

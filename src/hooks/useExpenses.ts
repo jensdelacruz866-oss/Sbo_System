@@ -146,7 +146,8 @@ export function useExpenses() {
         p_action: 'DELETE',
         p_table_name: 'expenses',
         p_record_id: id,
-        p_old_values: oldExpense as any
+        p_old_values: oldExpense as any,
+        p_new_values: null
       });
     } catch (error) {
       console.error('Error deleting expense:', error);

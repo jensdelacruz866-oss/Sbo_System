@@ -96,6 +96,7 @@ export function useDocuments() {
         p_action: 'INSERT',
         p_table_name: 'documents',
         p_record_id: document.id,
+        p_old_values: null,
         p_new_values: document as any
       });
     } catch (error) {
@@ -171,7 +172,8 @@ export function useDocuments() {
         p_action: 'DELETE',
         p_table_name: 'documents',
         p_record_id: id,
-        p_old_values: oldDocument as any
+        p_old_values: oldDocument as any,
+        p_new_values: null
       });
     } catch (error) {
       console.error('Error deleting document:', error);

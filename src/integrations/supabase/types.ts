@@ -380,20 +380,20 @@ export type Database = {
       }
       user_roles: {
         Row: {
-          created_at: string
           id: string
+          "now()": string
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Insert: {
-          created_at?: string
           id?: string
+          "now()"?: string
           role: Database["public"]["Enums"]["app_role"]
           user_id: string
         }
         Update: {
-          created_at?: string
           id?: string
+          "now()"?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }
@@ -418,9 +418,9 @@ export type Database = {
       log_audit_event: {
         Args: {
           p_action: string
-          p_new_values?: Json
-          p_old_values?: Json
-          p_record_id?: string
+          p_new_values: Json
+          p_old_values: Json
+          p_record_id: string
           p_table_name: string
         }
         Returns: undefined
