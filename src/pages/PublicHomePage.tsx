@@ -18,13 +18,33 @@ export default function PublicHomePage() {
   useEffect(() => {
     const fetchPublicData = async () => {
       try {
-        // Fetch public events
-        const { data: eventsData } = await supabase
+        // Fetch public events (prioritize upcoming)
+        const today = new Date().toISOString().slice(0, 10);
+
+        let eventsData: any[] = [];
+        const { data: upcoming, error: upcomingError } = await supabase
           .from('events')
           .select('*')
           .eq('is_public', true)
+          .gte('event_date', today)
           .order('event_date', { ascending: true })
           .limit(3);
+
+        if (upcomingError) {
+          console.error('Error fetching upcoming events:', upcomingError);
+        }
+
+        if (upcoming && upcoming.length > 0) {
+          eventsData = upcoming;
+        } else {
+          const { data: latest } = await supabase
+            .from('events')
+            .select('*')
+            .eq('is_public', true)
+            .order('event_date', { ascending: false })
+            .limit(3);
+          eventsData = latest || [];
+        }
         
         // Fetch public announcements
         const { data: announcementsData } = await supabase
