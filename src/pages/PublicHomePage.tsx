@@ -1,15 +1,53 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Calendar, FileText, Users, School, ArrowRight, Clock, MapPin, GraduationCap, Heart, Trophy, BookOpen, Mail, Map, Phone } from 'lucide-react';
-import { sampleOfficers, sampleAnnouncements, sampleEvents } from '@/data/sampleData';
+import { sampleOfficers, sampleAnnouncements } from '@/data/sampleData';
+import { supabase } from '@/integrations/supabase/client';
+import { format } from 'date-fns';
 
 export default function PublicHomePage() {
   const navigate = useNavigate();
-  const publicAnnouncements = sampleAnnouncements.filter(a => a.isPublic);
-  const publicEvents = sampleEvents.filter(e => e.isPublic);
+  const [events, setEvents] = useState<any[]>([]);
+  const [announcements, setAnnouncements] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    const fetchPublicData = async () => {
+      try {
+        // Fetch public events
+        const { data: eventsData } = await supabase
+          .from('events')
+          .select('*')
+          .eq('is_public', true)
+          .order('event_date', { ascending: true })
+          .limit(3);
+        
+        // Fetch public announcements
+        const { data: announcementsData } = await supabase
+          .from('announcements')
+          .select('*')
+          .eq('is_public', true)
+          .order('created_at', { ascending: false })
+          .limit(3);
+        
+        setEvents(eventsData || []);
+        setAnnouncements(announcementsData || []);
+      } catch (error) {
+        console.error('Error fetching public data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchPublicData();
+  }, []);
+  
+  const publicAnnouncements = announcements;
+  const publicEvents = events;
 
   return (
     <div className="min-h-screen gradient-bg page-transition">
@@ -765,53 +803,47 @@ export default function PublicHomePage() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {publicEvents.map((event, index) => (
-              <Card key={event.id} className="card-hover pro-card animate-fade-in bg-white/90 backdrop-blur-sm shadow-lg overflow-hidden group" style={{animationDelay: `${index * 0.1}s`}}>
-                <div className="relative">
-                  <div className="h-2 bg-gradient-to-r from-primary to-accent w-full transform transition-transform duration-500 group-hover:scale-x-110"></div>
-                  <div className="absolute top-4 right-4">
-                    <Badge className="bg-white text-primary shadow-md">
-                      {/* Fixed: Check if category exists, otherwise use default */}
-                      {event.category || "General"}
-                    </Badge>
+            {loading ? (
+              <div className="col-span-3 text-center py-8 text-muted-foreground">
+                Loading events...
+              </div>
+            ) : publicEvents.length > 0 ? (
+              publicEvents.map((event, index) => (
+                <Card key={event.id} className="card-hover pro-card animate-fade-in bg-white/90 backdrop-blur-sm shadow-lg overflow-hidden group" style={{animationDelay: `${index * 0.1}s`}}>
+                  <div className="relative">
+                    <div className="h-2 bg-gradient-to-r from-primary to-accent w-full transform transition-transform duration-500 group-hover:scale-x-110"></div>
                   </div>
-                </div>
-                <CardHeader>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                    <Calendar size={16} />
-                    {new Date(event.date).toLocaleDateString('en-US', { 
-                      weekday: 'long', 
-                      year: 'numeric', 
-                      month: 'long', 
-                      day: 'numeric' 
-                    })}
-                  </div>
-                  <CardTitle className="text-lg group-hover:text-primary transition-colors">{event.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground text-sm mb-4">{event.description}</p>
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Clock size={16} className="text-muted-foreground" />
-                      {event.time}
+                  <CardHeader>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+                      <Calendar size={16} />
+                      {format(new Date(event.event_date), 'EEEE, MMMM d, yyyy')}
                     </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <MapPin size={16} className="text-muted-foreground" />
-                      {event.location}
+                    <CardTitle className="text-lg group-hover:text-primary transition-colors">{event.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground text-sm mb-4">{event.description || 'No description'}</p>
+                    <div className="space-y-2 mb-4">
+                      {event.event_time && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <Clock size={16} className="text-muted-foreground" />
+                          {event.event_time}
+                        </div>
+                      )}
+                      {event.location && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <MapPin size={16} className="text-muted-foreground" />
+                          {event.location}
+                        </div>
+                      )}
                     </div>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <Badge variant="outline" className="border-primary/30 text-primary">
-                      {/* Fixed: Check if attendees exists, otherwise use default */}
-                      {event.attendees || 0} attending
-                    </Badge>
-                    <Button size="sm" className="text-xs">
-                      RSVP
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <div className="col-span-3 text-center py-8 text-muted-foreground">
+                No upcoming events at the moment.
+              </div>
+            )}
           </div>
           
           <div className="text-center mt-12">
@@ -835,48 +867,42 @@ export default function PublicHomePage() {
           </div>
           
           <div className="max-w-4xl mx-auto space-y-6">
-            {publicAnnouncements.map((announcement, index) => (
-              <Card key={announcement.id} className="card-hover pro-card animate-fade-in bg-white/90 backdrop-blur-sm shadow-lg overflow-hidden group" style={{animationDelay: `${index * 0.1}s`}}>
-                <div className="h-1 bg-gradient-to-r from-primary to-accent w-full transform transition-transform duration-500 group-hover:scale-x-110"></div>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg group-hover:text-primary transition-colors">{announcement.title}</CardTitle>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <FileText size={16} />
-                      {new Date(announcement.date).toLocaleDateString()}
+            {loading ? (
+              <div className="text-center py-8 text-muted-foreground">
+                Loading announcements...
+              </div>
+            ) : publicAnnouncements.length > 0 ? (
+              publicAnnouncements.map((announcement, index) => (
+                <Card key={announcement.id} className="card-hover pro-card animate-fade-in bg-white/90 backdrop-blur-sm shadow-lg overflow-hidden group" style={{animationDelay: `${index * 0.1}s`}}>
+                  <div className="h-1 bg-gradient-to-r from-primary to-accent w-full transform transition-transform duration-500 group-hover:scale-x-110"></div>
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-lg group-hover:text-primary transition-colors">{announcement.title}</CardTitle>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <FileText size={16} />
+                        {format(new Date(announcement.created_at), 'MMM dd, yyyy')}
+                      </div>
                     </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground leading-relaxed mb-4">
-                    {announcement.content.length > 200 
-                      ? `${announcement.content.substring(0, 200)}...` 
-                      : announcement.content}
-                  </p>
-                  {announcement.content.length > 200 && (
-                    <Button variant="ghost" className="text-primary p-0 h-auto hover:bg-transparent">
-                      Read More
-                    </Button>
-                  )}
-                  <div className="mt-4 pt-4 border-t border-border flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback className="text-xs bg-gradient-to-br from-primary/20 to-accent/20">
-                          {announcement.author.split(' ').map(n => n[0]).join('')}
-                        </AvatarFallback>
-                      </Avatar>
-                      <p className="text-sm text-muted-foreground">
-                        By {announcement.author}
-                      </p>
-                    </div>
-                    <Badge variant="outline" className="border-primary/30 text-primary">
-                      {/* Fixed: Check if category exists, otherwise use default */}
-                      {announcement.category || "General"}
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground leading-relaxed mb-4">
+                      {announcement.content.length > 200 
+                        ? `${announcement.content.substring(0, 200)}...` 
+                        : announcement.content}
+                    </p>
+                    {announcement.content.length > 200 && (
+                      <Button variant="ghost" className="text-primary p-0 h-auto hover:bg-transparent">
+                        Read More
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                No announcements at the moment.
+              </div>
+            )}
           </div>
           
           <div className="max-w-4xl mx-auto mt-12 bg-gradient-to-r from-primary/10 to-accent/10 rounded-xl p-6 text-center">
