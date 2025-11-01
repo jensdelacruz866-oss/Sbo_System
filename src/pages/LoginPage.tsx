@@ -27,9 +27,6 @@ export default function LoginPage() {
   const { signIn, signUp, isAuthenticated, signInWithOAuth } = useAuth();
   const navigate = useNavigate();
   
-  // Cursor animation state
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [cursorVariant, setCursorVariant] = useState("default");
   
   useEffect(() => {
     if (isAuthenticated) {
@@ -51,21 +48,6 @@ export default function LoginPage() {
     };
   }, []);
   
-  // Mouse move event for cursor animation (only for non-mobile)
-  useEffect(() => {
-    if (isMobile) return;
-    
-    const mouseMove = (e: MouseEvent) => {
-      setMousePosition({
-        x: e.clientX,
-        y: e.clientY
-      });
-    };
-    window.addEventListener("mousemove", mouseMove);
-    return () => {
-      window.removeEventListener("mousemove", mouseMove);
-    };
-  }, [isMobile]);
   
   // Password strength calculation
   useEffect(() => {
@@ -100,35 +82,6 @@ export default function LoginPage() {
     }
   }, [password]);
   
-  // Cursor variants for different states
-  const variants = {
-    default: {
-      x: mousePosition.x - 16,
-      y: mousePosition.y - 16,
-      backgroundColor: "#3b82f6",
-      mixBlendMode: "difference" as const,
-    },
-    hover: {
-      x: mousePosition.x - 24,
-      y: mousePosition.y - 24,
-      backgroundColor: "#ef4444",
-      mixBlendMode: "difference" as const,
-      scale: 1.5,
-    },
-    click: {
-      x: mousePosition.x - 16,
-      y: mousePosition.y - 16,
-      backgroundColor: "#10b981",
-      mixBlendMode: "difference" as const,
-      scale: 0.8,
-    }
-  };
-  
-  // Handle mouse events for cursor (only for non-mobile)
-  const handleMouseEnter = () => !isMobile && setCursorVariant("hover");
-  const handleMouseLeave = () => !isMobile && setCursorVariant("default");
-  const handleMouseDown = () => !isMobile && setCursorVariant("click");
-  const handleMouseUp = () => !isMobile && setCursorVariant("hover");
   
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -236,11 +189,7 @@ export default function LoginPage() {
   
   return (
     <div 
-      className={`min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 relative overflow-hidden ${isMobile ? '' : 'cursor-none'}`}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
+      className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4 relative overflow-hidden"
     >
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
@@ -266,36 +215,6 @@ export default function LoginPage() {
           />
         ))}
       </div>
-      
-      {/* Custom Animated Cursor (only for non-mobile) */}
-      {!isMobile && (
-        <>
-          <motion.div
-            className="fixed top-0 left-0 w-8 h-8 rounded-full pointer-events-none z-50"
-            variants={variants}
-            animate={cursorVariant}
-            transition={{
-              type: "spring",
-              damping: 25,
-              stiffness: 300,
-            }}
-          />
-          
-          <motion.div
-            className="fixed top-0 left-0 w-4 h-4 rounded-full bg-blue-300/50 pointer-events-none z-40"
-            animate={{
-              x: mousePosition.x - 8,
-              y: mousePosition.y - 8,
-            }}
-            transition={{
-              type: "spring",
-              damping: 40,
-              stiffness: 200,
-              delay: 0.05,
-            }}
-          />
-        </>
-      )}
       
       <motion.div 
         className="w-full max-w-md mx-auto z-10"
