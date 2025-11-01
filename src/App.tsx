@@ -12,6 +12,8 @@ import RoleSelection from "./pages/RoleSelection";
 import DashboardLayout from "./layouts/DashboardLayout";
 import DashboardPage from "./pages/DashboardPage";
 import OfficersPage from "./pages/OfficersPage";
+import ContactPage from "./pages/ContactPage";
+import AboutPage from "./pages/AboutPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +30,8 @@ const App = () => (
             <Route path="/auth-setup" element={<AuthSetup />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/officers" element={<OfficersPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/about" element={<AboutPage />} />
             <Route path="/role-selection" element={
               <ProtectedRoute requireRole={false}>
                 <RoleSelection />
