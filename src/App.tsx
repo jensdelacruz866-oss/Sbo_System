@@ -14,6 +14,10 @@ import DashboardPage from "./pages/DashboardPage";
 import OfficersPage from "./pages/OfficersPage";
 import ContactPage from "./pages/ContactPage";
 import AboutPage from "./pages/AboutPage";
+import BudgetPage from "./pages/BudgetPage";
+import ExpensesPage from "./pages/ExpensesPage";
+import EventsPage from "./pages/EventsPage";
+import AnnouncementsPage from "./pages/AnnouncementsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,6 +45,34 @@ const App = () => (
               <ProtectedRoute>
                 <DashboardLayout>
                   <DashboardPage />
+                </DashboardLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/budget" element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <BudgetPage />
+                </DashboardLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/expenses" element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <ExpensesPage />
+                </DashboardLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/events" element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <EventsPage />
+                </DashboardLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/announcements" element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <AnnouncementsPage />
                 </DashboardLayout>
               </ProtectedRoute>
             } />

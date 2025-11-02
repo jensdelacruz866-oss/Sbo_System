@@ -9,7 +9,7 @@ import {
   Users, 
   Calendar,
   FileText,
-  Settings,
+  Receipt,
   LogOut,
   Menu,
   X,
@@ -20,11 +20,11 @@ import { cn } from '@/lib/utils';
 
 const navigationItems = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Budget', href: '/dashboard/budget', icon: DollarSign },
+  { name: 'Budget', href: '/budget', icon: DollarSign },
+  { name: 'Expenses', href: '/expenses', icon: Receipt },
   { name: 'Officers', href: '/officers', icon: Users },
-  { name: 'Events', href: '/dashboard/events', icon: Calendar },
-  { name: 'Announcements', href: '/dashboard/announcements', icon: FileText },
-  { name: 'Settings', href: '/dashboard/settings', icon: Settings },
+  { name: 'Events', href: '/events', icon: Calendar },
+  { name: 'Announcements', href: '/announcements', icon: FileText },
 ];
 
 export default function Sidebar() {
