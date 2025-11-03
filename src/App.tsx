@@ -18,6 +18,7 @@ import BudgetPage from "./pages/BudgetPage";
 import ExpensesPage from "./pages/ExpensesPage";
 import EventsPage from "./pages/EventsPage";
 import AnnouncementsPage from "./pages/AnnouncementsPage";
+import DocumentsPage from "./pages/DocumentsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -73,6 +74,13 @@ const App = () => (
               <ProtectedRoute>
                 <DashboardLayout>
                   <AnnouncementsPage />
+                </DashboardLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/documents" element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <DocumentsPage />
                 </DashboardLayout>
               </ProtectedRoute>
             } />

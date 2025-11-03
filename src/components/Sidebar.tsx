@@ -14,7 +14,8 @@ import {
   Menu,
   X,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Upload
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -25,6 +26,7 @@ const navigationItems = [
   { name: 'Officers', href: '/officers', icon: Users },
   { name: 'Events', href: '/events', icon: Calendar },
   { name: 'Announcements', href: '/announcements', icon: FileText },
+  { name: 'Documents', href: '/documents', icon: Upload },
 ];
 
 export default function Sidebar() {
